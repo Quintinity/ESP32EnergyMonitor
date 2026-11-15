@@ -2,6 +2,16 @@
 
 ----
 
+## Project status (Quintinity)
+
+**The Quintinity prototype works and has been tested on real hardware** (confirmed 2026-11-15).
+
+The tested device is a Seeed XIAO ESP32-C3 with an rbAmp UI1 I2C energy module and an SCT013 5A/1V clamp. That is a different build from the analog ESP32 DevKit + ZMPT101B + EmonLib design documented below, which comes from the upstream project. See [docs/xiao-rbamp-prototype.md](docs/xiao-rbamp-prototype.md) for the hardware, wiring and status.
+
+Still to come: the firmware used in testing (from Minjae) and the test evidence (photos, logs and readings).
+
+----
+
 ## Introduction
 For months I've been looking for a non-intrusive energy monitoring solution for my home. The residence receives more than one phase from the utility company and the available solutions in the market based on open protocols are extremely expensive for this setup. Cheap alternatives always rely on cloud services and I don't believe any of them will remain online for too long.
 
