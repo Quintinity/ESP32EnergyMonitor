@@ -1,0 +1,23 @@
+esphome:
+  name: rbamp-idfscan
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+logger:
+  level: DEBUG
+i2c:
+  id: bus_a
+  sda: GPIO6
+  scl: GPIO7
+  frequency: 50kHz
+  scan: true
+interval:
+  - interval: 5s
+    startup_delay: 3s
+    then:
+      - lambda: |-
+          auto *bus = id(bus_a);
+          uint8_t dummy;
+          auto err = bus->write_readv(0x50, nullptr, 0, &dummy, 0);
+          ESP_LOGI("idfscan", "probe 0x50 -> err=%d (0 = ACK)", (int) err);

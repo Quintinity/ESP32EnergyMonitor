@@ -1,0 +1,22 @@
+esphome:
+  name: rbamp-diag
+  includes:
+    - diag.h
+
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+
+logger:
+  level: INFO
+
+interval:
+  - interval: 6s
+    startup_delay: 2s
+    then:
+      - lambda: |-
+          diag::hold_init(); esphome::delay(50); diag::hold_report();
+          diag::bb_scan(6, 7, false);
+          diag::bb_scan(6, 7, true);
+          diag::bb_scan(7, 6, false);

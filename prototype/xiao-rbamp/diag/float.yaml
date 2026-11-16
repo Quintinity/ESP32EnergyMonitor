@@ -1,0 +1,28 @@
+# Measurement mode: D4/D5 are plain inputs (no pull-up, no pull-down, no I2C traffic).
+# A multimeter on SDA/SCL now shows ONLY the rbAmp's own pull-up voltage (its internal 3.3 V rail).
+esphome:
+  name: rbamp-float
+  includes:
+    - diag.h
+  on_boot:
+    priority: 600
+    then:
+      - lambda: |-
+          for (gpio_num_t p : {GPIO_NUM_6, GPIO_NUM_7}) {
+            gpio_reset_pin(p); gpio_set_direction(p, GPIO_MODE_INPUT); gpio_set_pull_mode(p, GPIO_FLOATING);
+          }
+
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+
+logger:
+  level: INFO
+
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          ESP_LOGI("float", "FLOAT D4(SDA)=%d D5(SCL)=%d  (1 = rbAmp rail above ~2.5V)",
+                   gpio_get_level(GPIO_NUM_6), gpio_get_level(GPIO_NUM_7));

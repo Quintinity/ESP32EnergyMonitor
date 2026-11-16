@@ -1,0 +1,74 @@
+esphome:
+  name: rbamp-meter
+  friendly_name: rbAmp Meter
+
+esp32:
+  board: seeed_xiao_esp32c3  # Seeed XIAO ESP32-C3
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_key
+  reboot_timeout: 0s         # no Home Assistant: don't reboot every 15 min waiting for it
+
+# Web page: open http://rbamp-meter.local (or the IP shown in the log) in a browser
+web_server:
+  port: 80
+  version: 3
+  js_include: live-chart.js   # pulsing "live" dot on the sensor charts
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  output_power: 8.5dB        # lower Wi-Fi power; harmless, avoids C3 connection issues
+  power_save_mode: none      # modem sleep made the C3 miss ARP broadcasts (unreachable on the LAN)
+  ap:
+    ssid: "rbamp-meter Fallback"
+captive_portal:
+
+external_components:
+  - source: github://rb-amp/rbamp-esphome   # pin a version (@v1.x.x) once it works
+    components: [rbamp]
+
+i2c:
+  sda: GPIO6                 # XIAO pin D4
+  scl: GPIO7                 # XIAO pin D5
+  frequency: 10kHz           # slow bus: rbAmp pull-ups are weak/absent here, so give edges time to rise
+  scan: true                 # lists I2C devices at boot
+
+rbamp:
+  id: meter1
+  address: 0x50
+  # ct_model: SCT_013_005    # disabled: this production module refuses CT-model writes (factory mode only)
+  update_interval: 5s
+
+# Self-heal: the rbamp component probes only once at boot. If the module didn't answer
+# (e.g. it was still restarting), reboot after 30 s and try again instead of staying dead.
+interval:
+  - interval: 30s
+    startup_delay: 30s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(meter1)->is_failed();'
+          then:
+            - logger.log:
+                level: WARN
+                format: "rbAmp not responding at boot - rebooting to retry"
+            - lambda: 'App.safe_reboot();'
+
+sensor:
+  - platform: rbamp
+    rbamp_id: meter1
+    voltage:      { name: "Voltage" }
+    current:      { name: "Current" }
+    power:        { name: "Power" }
+    power_factor: { name: "Power Factor" }
+    frequency:    { name: "Frequency" }
+    energy:       { name: "Energy" }

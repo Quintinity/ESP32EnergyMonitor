@@ -1,0 +1,14 @@
+esphome:
+  name: rbamp-monitor
+  includes:
+    - diag.h
+esp32:
+  board: seeed_xiao_esp32c3
+  framework:
+    type: esp-idf
+logger:
+  level: INFO
+interval:
+  - interval: 100ms
+    then:
+      - lambda: 'diag::monitor_tick();'

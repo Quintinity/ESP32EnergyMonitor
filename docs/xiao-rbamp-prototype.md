@@ -7,12 +7,19 @@ assembled prototype works on the bench.
 
 Still to be added to this repository:
 
-- [ ] Firmware / configuration used for the test (from Minjae)
-- [ ] Test evidence: photos of the setup, serial or ESPHome logs, and readings
-      compared against a reference meter or known load
+- [x] Firmware / configuration used for the test (from Minjae):
+      [prototype/xiao-rbamp/](../prototype/xiao-rbamp/)
+- [x] Logs and readings: [xiao-rbamp-test-log.md](xiao-rbamp-test-log.md)
+- [ ] Photos of the setup
+- [ ] Voltage, power and energy readings (needs the L/N mains connection) compared
+      against a reference meter or known load
 
-Until those land, the firmware in this repository does **not** reflect the tested
-device (see "How this differs from the original design" below).
+Minjae's bench tests (12–13 Nov) confirmed the I2C link, current readings and the live
+web page. Voltage, power and energy were **not** tested, because L/N was not connected,
+and the current scale is not yet verified. See the test log for details.
+
+The firmware under `esphome-esp32emon/` is the upstream analog design and does **not**
+match the tested device (see "How this differs from the original design" below).
 
 ## Hardware
 
@@ -48,8 +55,9 @@ uses an ESP32 DevKit, a ZMPT101B analog voltage sensor and EmonLib. That firmwar
 reads analog pins and does not work with the I2C rbAmp module. The prototype
 instead uses the rbAmp ESPHome component
 ([rb-amp/rbamp-esphome](https://github.com/rb-amp/rbamp-esphome)) with
-`board: seeed_xiao_esp32c3`, `sda: GPIO6`, `scl: GPIO7`, `frequency: 50kHz`,
-`address: 0x50` and `ct_model: SCT_013_005`.
+`board: seeed_xiao_esp32c3`, `sda: GPIO6`, `scl: GPIO7` and `address: 0x50`. The tested
+config ran the bus at `frequency: 10kHz` (50 kHz is the rbAmp recommendation) and had
+`ct_model` commented out, because this production module refused the CT-model write.
 
 Known issue to check against when validating readings:
 [rbamp-esphome#1](https://github.com/rb-amp/rbamp-esphome/issues/1) (UI1 Basic
